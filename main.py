@@ -32,6 +32,9 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+        self.movex = 0  # move along x
+        self.movey = 0  # move along y
+        self.frame = 0  # count frames
         self.images = []
 
         for i in range(0,8):
@@ -72,7 +75,22 @@ while main == True:
             finally:
                 main = False
         
-        if event.type == KEYDOWN:
+        if event.type == KEYDOWN:       
+            if event.key == pygame.K_LEFT or event.key == ord('a'):
+                print('left')
+            if event.key == pygame.K_RIGHT or event.key == ord('d'):
+                print('right')
+            if event.key == pygame.K_UP or event.key == ord('w'):
+                print('jump')
+
+        if event.type == KEYUP:
+            if event.key == pygame.K_LEFT or event.key == ord('a'):
+                print('left stop')
+            if event.key == pygame.K_RIGHT or event.key == ord('d'):
+                print('right stop')
+            if event.key == pygame.K_UP or event.key == ord('w'):
+                print('jump end')
+
             if event.key == ord('q'):
                 pygame.quit()
                 try:
