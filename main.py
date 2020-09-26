@@ -93,14 +93,15 @@ class Player(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     '''
-    Spawn a bug
+    Spawn an enemy
     '''
-    def __init__(self, x, y, img_file):
+    def __init__(self, x, y, img_file, type=None):
         pygame.sprite.Sprite.__init__(self)
         # self.movex = 0
         # self.movey = 0
         self.frame = 0
         self.images = []
+        self.type = type
 
         for i in range(0,6):
             img = pygame.image.load(os.path.join('assets/opp2_sprites', f'{img_file}-{i}.png')).convert()
@@ -136,21 +137,28 @@ class Enemy(pygame.sprite.Sprite):
             self.counter = 0
 
         self.counter += 1
+    
+    def gravity(self):
+        if self.type != 'flying':
+            self.rect.y += 8
+            if self.rect.y > worldy-ty-45:
+                self.rect.y = worldy-ty-45
+
 
 
 class Level():
     def bad(lvl, eloc):
         if lvl == 1:
-            enemy = Enemy(eloc[0],eloc[1],'bug')
+            enemy = Enemy(eloc[0],eloc[1],'bug','flying')
             enemy_list = pygame.sprite.Group()
             enemy_list.add(enemy)
         if lvl == 2:
-            bug = Enemy(eloc[0], eloc[1], 'bug')
-            bug2 = Enemy(eloc[2], eloc[3], 'bug')
+            bug = Enemy(eloc[0], eloc[1], 'bug','flying')
+            bug2 = Enemy(eloc[2], eloc[3], 'bug','flying')
             enemy_list = pygame.sprite.Group()
             enemy_list.add(bug)
             enemy_list.add(bug2)
-            skeleton = Enemy(eloc[4],eloc[5], 'skeleton')
+            skeleton = Enemy(eloc[4],eloc[5], 'skeleton','ground')
             enemy_list.add(skeleton)
 
         return enemy_list
@@ -322,7 +330,11 @@ while main == True:
     ground_list.draw(world)
     plat_list.draw(world)
     for e in enemy_list:
-        e.move(60, random.randint(2,6))
+        if e.type == 'flying':
+            e.move(60, random.randint(2,6))
+        elif e.type == 'ground':
+            e.gravity()
+            e.move(45, 2)
 
     pygame.display.flip()
     clock.tick(fps)
