@@ -143,6 +143,8 @@ class Level():
             enemy_list = pygame.sprite.Group()
             enemy_list.add(bug)
             enemy_list.add(bug2)
+            skeleton = Enemy(eloc[4],eloc[5], 'skeleton')
+            enemy_list.add(skeleton)
 
         return enemy_list
     
@@ -252,7 +254,7 @@ player_list = pygame.sprite.Group()
 player_list.add(player)
 
 eloc = []
-eloc = [random.randint(100,200),worldy-150-165,random.randint(250,350),worldy-150-370]
+eloc = [random.randint(100,200),worldy-150-165,random.randint(250,350),worldy-150-370,300,0]
 lvl = 2
 enemy_list = Level.bad(lvl, eloc)
 
