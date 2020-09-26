@@ -24,10 +24,12 @@ Variables
 '''
 
 worldx = 960
-worldy = 600
+worldy = 720
 fps = 40
 ani = 4
 world = pygame.display.set_mode([worldx, worldy])
+forwardx  = 600
+backwardx = 230
 
 BLUE = (25, 25, 200)
 BLACK = (23, 23, 23)
@@ -42,7 +44,7 @@ Objects
 class Platform(pygame.sprite.Sprite):
     def __init__(self, xloc, yloc, imgw, imgh, img):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('assets', img)).convert()
+        self.image = pygame.image.load(os.path.join('images', img)).convert()
         self.image.convert_alpha()
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
@@ -65,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         self.is_falling = True
         self.images = []
         for i in range(1, 5):
-            img = pygame.image.load(os.path.join('assets', 'walk-' + str(i) + '.png')).convert()
+            img = pygame.image.load(os.path.join('images', 'hero' + str(i) + '.png')).convert()
             img.convert_alpha()
             img.set_colorkey(ALPHA)
             self.images.append(img)
@@ -150,7 +152,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def __init__(self, x, y, img):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join('assets', img))
+        self.image = pygame.image.load(os.path.join('images', img))
         self.image.convert_alpha()
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
@@ -181,7 +183,7 @@ class Level:
         i = 0
         if lvl == 1:
             while i < len(gloc):
-                ground = Platform(gloc[i], worldy - ty, tx, ty, 'foresttiles-1.png')
+                ground = Platform(gloc[i], worldy - ty, tx, ty, 'tile-ground.png')
                 ground_list.add(ground)
                 i = i + 1
 
@@ -192,7 +194,7 @@ class Level:
 
     def bad(lvl, eloc):
         if lvl == 1:
-            enemy = Enemy(eloc[0], eloc[1], 'skeleton-0.png')
+            enemy = Enemy(eloc[0], eloc[1], 'enemy.png')
             enemy_list = pygame.sprite.Group()
             enemy_list.add(enemy)
         if lvl == 2:
@@ -212,7 +214,7 @@ class Level:
             while i < len(ploc):
                 j = 0
                 while j <= ploc[i][2]:
-                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty, 'foresttiles-1a.png')
+                    plat = Platform((ploc[i][0] + (j * tx)), ploc[i][1], tx, ty, 'tile.png')
                     plat_list.add(plat)
                     j = j + 1
                 print('run' + str(i) + str(ploc[i]))
@@ -228,7 +230,7 @@ class Level:
 Setup
 '''
 
-backdrop = pygame.image.load(os.path.join('assets', 'background.png'))
+backdrop = pygame.image.load(os.path.join('images', 'stage.png'))
 clock = pygame.time.Clock()
 pygame.init()
 backdropbox = world.get_rect()
@@ -290,6 +292,24 @@ while main:
             if event.key == pygame.K_RIGHT or event.key == ord('d'):
                 player.control(-steps, 0)
 
+    # scroll the world forward
+    if player.rect.x >= forwardx:
+        scroll = player.rect.x - forwardx
+        player.rect.x = forwardx
+        for p in plat_list:
+            p.rect.x -= scroll
+        for e in enemy_list:  # enemy scroll
+            e.rect.x -= scroll  # enemy scroll
+
+    # scroll the world backward
+    if player.rect.x <= backwardx:
+        scroll = backwardx - player.rect.x
+        player.rect.x = backwardx
+        for p in plat_list:
+            p.rect.x += scroll
+        for e in enemy_list:    # enemy scroll
+            e.rect.x += scroll  # enemy scroll
+           
     world.blit(backdrop, backdropbox)
     player.update()
     player.gravity()
