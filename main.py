@@ -12,7 +12,7 @@ Variables
 '''
 worldx = 800    # x dimension
 worldy = 600    # y dimension
-fps = 20        # framerate
+fps = 30        # framerate
 ani = 4         # animation cycles
 
 BLUE = (25, 25, 200)
@@ -38,6 +38,8 @@ class Player(pygame.sprite.Sprite):
         self.frame = 0  # count frames
         self.health = 10 # track player health
         self.images = []
+        self.is_jumping = False
+        self.is_falling = True
 
         for i in range(0,8):
             img = pygame.image.load(os.path.join('assets/supertux', f'{p_img}-{i}.png')).convert()
@@ -62,6 +64,39 @@ class Player(pygame.sprite.Sprite):
         for enemy in hit_list:
             self.health -= 1
             print(self.health)
+        
+        ground_hit_list = pygame.sprite.spritecollide(self, ground_list, False)
+        for g in ground_hit_list:
+            self.movey = 0
+            self.rect.bottom = g.rect.top
+            self.is_jumping = False
+            self.is_falling = False
+        
+        plat_hit_list = pygame.sprite.spritecollide(self, plat_list, False)
+        for p in plat_hit_list:
+            self.is_jumping = False
+            self.movey = 0
+
+            if self.rect.bottom <= p.rect.bottom:
+                self.rect.bottom = p.rect.top
+                self.is_falling = False
+            else:
+                self.gravity()
+            # self.rect.bottom = p.rect.top
+
+        # Falling off the world
+
+        if self.rect.y > worldy:
+            self.health -= 1
+            print(self.health)
+            self.rect.x = tx
+            self.rect.y = ty
+        
+        # Jumping
+
+        if self.is_jumping and self.is_falling is False:
+            self.is_falling = True
+            self.movey -= 33
 
         '''
         Update sprite position
@@ -71,6 +106,7 @@ class Player(pygame.sprite.Sprite):
 
         # Moving left
         if self.movex < 0:
+            self.is_falling = True
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
@@ -78,17 +114,33 @@ class Player(pygame.sprite.Sprite):
         
         # Moving right
         if self.movex > 0:
+            self.is_falling = True
             self.frame += 1
             if self.frame > 3*ani:
                 self.frame = 0
             self.image = self.images[self.frame//ani]
     
-    def gravity(self):
-        self.movey += 1.2  # How fast player falls
+    # def gravity(self):
+    #     self.movey += 1.2  # How fast player falls
 
-        if self.rect.y > worldy and self.movey >= 0:
-            self.movey = 0
-            self.rect.y = worldy-300
+    #     if self.rect.y > worldy and self.movey >= 0:
+    #         self.movey = 0
+    #         self.rect.y = worldy-300
+
+    def gravity(self):
+        if self.is_falling:
+            self.movey += 3.2
+
+    def jump(self):
+        if self.is_jumping is False:
+            self.is_falling = False
+            self.is_jumping = True
+    
+    def stop_jumping(self):
+        if self.is_jumping:
+            self.is_jumping = False
+            self.is_falling = True
+
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -141,8 +193,12 @@ class Enemy(pygame.sprite.Sprite):
     def gravity(self):
         if self.type != 'flying':
             self.rect.y += 8
-            if self.rect.y > worldy-ty-45:
-                self.rect.y = worldy-ty-45
+            ground_hit_list = pygame.sprite.spritecollide(self, ground_list, False)
+            for g in ground_hit_list:
+                self.rect.bottom = g.rect.top
+            plat_hit_list = pygame.sprite.spritecollide(self, plat_list, False)
+            for p in plat_hit_list:
+                self.rect.bottom = p.rect.top
 
 
 
@@ -305,7 +361,7 @@ while main == True:
             if event.key == K_RIGHT or event.key == ord('d'):
                 player.control(steps,0)
             if event.key == K_UP or event.key == ord('w') or event.key == K_SPACE:
-                print('jump')
+                player.jump()
 
         if event.type == KEYUP:
             if event.key == K_LEFT or event.key == ord('a'):
@@ -313,7 +369,7 @@ while main == True:
             if event.key == K_RIGHT or event.key == ord('d'):
                 player.control(-steps,0)
             if event.key == K_UP or event.key == ord('w') or event.key == K_SPACE:
-                print('jump end')
+                player.stop_jumping()
 
             if event.key == ord('q'):
                 pygame.quit()
