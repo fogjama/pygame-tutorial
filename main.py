@@ -82,6 +82,13 @@ class Player(pygame.sprite.Sprite):
             if self.frame > 3*ani:
                 self.frame = 0
             self.image = self.images[self.frame//ani]
+    
+    def gravity(self):
+        self.movey += 1.2  # How fast player falls
+
+        if self.rect.y > worldy and self.movey >= 0:
+            self.movey = 0
+            self.rect.y = worldy-300
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -308,6 +315,7 @@ while main == True:
                     main = False
 
     world.blit(backdrop, backdropbox)
+    player.gravity()
     player.update()
     player_list.draw(world) # draw player
     enemy_list.draw(world) # draw enemies
