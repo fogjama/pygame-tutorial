@@ -75,11 +75,11 @@ class Player(pygame.sprite.Sprite):
             self.image = self.images[self.frame//ani]
 
 
-class Bug(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
     '''
     Spawn a bug
     '''
-    def __init__(self):
+    def __init__(self, x, y, img_file):
         pygame.sprite.Sprite.__init__(self)
         self.movex = 0
         self.movey = 0
@@ -87,12 +87,14 @@ class Bug(pygame.sprite.Sprite):
         self.images = []
 
         for i in range(0,6):
-            img = pygame.image.load(os.path.join('assets/opp2_sprites', f'bug-{i}.png')).convert()
+            img = pygame.image.load(os.path.join('assets/opp2_sprites', f'{img_file}-{i}.png')).convert()
             img.convert_alpha()     # optimize alpha
             img.set_colorkey(ALPHA) # set alpha
             self.images.append(img)
         self.image = self.images[0]
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
     
     def move(self, x, y):
         self.movex += x
@@ -133,11 +135,9 @@ player.rect.y = 0   # Go to y
 player_list = pygame.sprite.Group()
 player_list.add(player)
 
-bug = Bug()
-bug.rect.x = random.randint(100,500)
-bug.rect.y = 0
-bug_list = pygame.sprite.Group()
-bug_list.add(bug)
+bug = Enemy(random.randint(100,500),0,'bug')
+enemy_list = pygame.sprite.Group()
+enemy_list.add(bug)
 
 steps = 10  # how many pixels to move
 
@@ -187,8 +187,8 @@ while main == True:
     world.blit(backdrop, backdropbox)
     player.update()
     player_list.draw(world) # draw player
-    bug.update()
-    bug_list.draw(world)
+    # bug.update()
+    enemy_list.draw(world)
 
     pygame.display.flip()
     clock.tick(fps)
