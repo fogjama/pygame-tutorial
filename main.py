@@ -182,6 +182,38 @@ class Level():
             plat_list.add(plat)
         
         return plat_list
+    
+    def platform_advanced(lvl,tx,ty, img_file):
+        plat_list = pygame.sprite.Group()
+        ploc = []
+        i=0
+        if lvl == 1:
+            ploc.append((200,worldy-ty-128,3))
+            ploc.append((300,worldy-ty-256,3))
+            ploc.append((500,worldy-ty-128,4))
+            while i < len(ploc):
+                j=0
+                while j <= ploc[i][2]:
+                    plat = Platform((ploc[i][0]+(j*tx)),ploc[i][1],tx,ty,img_file)
+                    plat_list.add(plat)
+                    j=j+1
+                print('run' + str(i) + str(ploc[i]))
+                i=i+1
+            
+        if lvl == 2:
+            ploc.append((200,worldy-ty-128,3))
+            ploc.append((300,worldy-ty-256,3))
+            ploc.append((500,worldy-ty-128,4))
+            while i < len(ploc):
+                j=0
+                while j <= ploc[i][2]:
+                    plat = Platform((ploc[i][0]+(j*tx)),ploc[i][1],tx,ty,img_file)
+                    plat_list.add(plat)
+                    j=j+1
+                print('run' + str(i) + str(ploc[i]))
+                i=i+1
+
+        return plat_list
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, xloc, yloc, imgw, imgh, img_file):
@@ -213,19 +245,20 @@ while i <= (worldx/tx)+tx:
     gloc.append(i*tx)
     i += 1
 
-player = Player(0,worldy-ty-27,'walk')   # Spawn player
+player = Player(0,0,'walk')   # Spawn player
 # player.rect.x = 0   # Go to x
 # player.rect.y = 0   # Go to y
 player_list = pygame.sprite.Group()
 player_list.add(player)
 
 eloc = []
-eloc = [random.randint(100,200),0,random.randint(250,350),0]
+eloc = [random.randint(100,200),worldy-150-165,random.randint(250,350),worldy-150-370]
 lvl = 2
 enemy_list = Level.bad(lvl, eloc)
 
 ground_list = Level.ground_tile(lvl, gloc, tx, ty, 'supertux/foresttiles-1.png')
 plat_list = Level.platform(2)
+# plat_list = Level.platform_advanced(2,tx,ty,'supertux/foresttiles-1a.png')
 
 steps = 10  # how many pixels to move
 
