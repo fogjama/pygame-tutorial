@@ -106,12 +106,12 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = y
         self.counter = 0
     
-    def move(self):
+    def move(self, distance, speed):
         # self.movex += x
         # self.movey += y
 
-        distance = 60
-        speed = 3
+        # distance = 60
+        # speed = 3
 
         if self.counter >= 0 and self.counter <= distance:
             self.rect.x += speed
@@ -138,7 +138,11 @@ class Level():
             enemy_list = pygame.sprite.Group()
             enemy_list.add(enemy)
         if lvl == 2:
-            print('Level ' + str(lvl))
+            bug = Enemy(eloc[0], eloc[1], 'bug')
+            bug2 = Enemy(eloc[2], eloc[3], 'bug')
+            enemy_list = pygame.sprite.Group()
+            enemy_list.add(bug)
+            enemy_list.add(bug2)
 
         return enemy_list
 
@@ -160,8 +164,8 @@ player_list = pygame.sprite.Group()
 player_list.add(player)
 
 eloc = []
-eloc = [random.randint(100,500),0]
-enemy_list = Level.bad(1, eloc)
+eloc = [random.randint(100,200),0,random.randint(250,350),0]
+enemy_list = Level.bad(2, eloc)
 # bug = Enemy(random.randint(100,500),0,'bug')
 # enemy_list = pygame.sprite.Group()
 # enemy_list.add(bug)
@@ -214,10 +218,9 @@ while main == True:
     world.blit(backdrop, backdropbox)
     player.update()
     player_list.draw(world) # draw player
-    # bug.update()
-    enemy_list.draw(world)
+    enemy_list.draw(world) # draw enemies
     for e in enemy_list:
-        e.move()
+        e.move(60, random.randint(2,6))
 
     pygame.display.flip()
     clock.tick(fps)
