@@ -12,6 +12,8 @@ Variables
 '''
 worldx = 800    # x dimension
 worldy = 600    # y dimension
+forwardx = worldx - 200 # Point at which screen scrolls forward
+backwardx = 200 # Point at which screen scrolls backward
 fps = 30        # framerate
 ani = 4         # animation cycles
 
@@ -377,6 +379,27 @@ while main == True:
                     sys.exit()
                 finally:
                     main = False
+
+    if player.rect.x >= forwardx:
+        scroll = player.rect.x - forwardx
+        player.rect.x = forwardx
+        for p in plat_list:
+            p.rect.x -= scroll
+        for g in ground_list:
+            g.rect.x -= scroll
+        for e in enemy_list:
+            e.rect.x -= scroll
+    
+    # if player.rect.x <= backwardx:
+    #     scroll = backwardx - player.rect.x
+    #     player.rect.x = backwardx
+    #     for p in plat_list:
+    #         p.rect.x += scroll
+    #     for g in ground_list:
+    #         g.rect.x += scroll
+    #     for e in enemy_list:
+    #         e.rect.x += scroll
+
 
     world.blit(backdrop, backdropbox)
     player.gravity()
