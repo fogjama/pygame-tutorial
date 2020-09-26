@@ -12,7 +12,7 @@ Variables
 '''
 worldx = 800    # x dimension
 worldy = 600    # y dimension
-fps = 40        # framerate
+fps = 20        # framerate
 ani = 4         # animation cycles
 
 BLUE = (25, 25, 200)
@@ -145,6 +145,53 @@ class Level():
             enemy_list.add(bug2)
 
         return enemy_list
+    
+    def ground(lvl,x,y,w,h, img_file):
+        ground_list = pygame.sprite.Group()
+
+        ground = Platform(x, y, w, h, img_file)
+        ground_list.add(ground)
+        
+        return ground_list
+    
+    def ground_tile(lvl,gloc,tx,ty,img_file):
+        ground_list = pygame.sprite.Group()
+
+        i=0
+        while i < len(gloc):
+            ground = Platform(gloc[i], worldy-ty, tx, ty, img_file)
+            ground_list.add(ground)
+            i += 1
+        
+        return ground_list
+    
+    def platform(lvl):
+        plat_list = pygame.sprite.Group()
+
+        if lvl == 1:
+            plat = Platform(200, worldy-150-100, 96, 32, 'supertux/forestlog.png')
+            plat_list.add(plat)
+            plat = Platform(500, worldy-150-200, 96, 32, 'supertux/forestlog.png')
+            plat_list.add(plat)
+        if lvl == 2:
+            plat = Platform(230, worldy-150-100, 128, 32, 'supertux/foresttiles-1a.png')
+            plat_list.add(plat)
+            plat = Platform(330, worldy-150-200, 128, 32, 'supertux/foresttiles-1a.png')
+            plat_list.add(plat)
+            plat = Platform(430, worldy-150-300, 128, 32, 'supertux/foresttiles-1a.png')
+            plat_list.add(plat)
+        
+        return plat_list
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, xloc, yloc, imgw, imgh, img_file):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join('assets/',img_file)).convert()
+        self.image.convert_alpha()
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.x = xloc
+        self.rect.y = yloc
 
 '''
 Setup
@@ -157,7 +204,16 @@ world = pygame.display.set_mode([worldx,worldy])
 backdrop = pygame.image.load(os.path.join('assets/kenny/Backgrounds','backgroundColorDesert.png'))
 backdropbox = world.get_rect()
 
-player = Player(0,30,'walk')   # Spawn player
+gloc = []
+tx = 128
+ty = 150
+
+i = 0
+while i <= (worldx/tx)+tx:
+    gloc.append(i*tx)
+    i += 1
+
+player = Player(0,worldy-ty-27,'walk')   # Spawn player
 # player.rect.x = 0   # Go to x
 # player.rect.y = 0   # Go to y
 player_list = pygame.sprite.Group()
@@ -165,10 +221,11 @@ player_list.add(player)
 
 eloc = []
 eloc = [random.randint(100,200),0,random.randint(250,350),0]
-enemy_list = Level.bad(2, eloc)
-# bug = Enemy(random.randint(100,500),0,'bug')
-# enemy_list = pygame.sprite.Group()
-# enemy_list.add(bug)
+lvl = 2
+enemy_list = Level.bad(lvl, eloc)
+
+ground_list = Level.ground_tile(lvl, gloc, tx, ty, 'supertux/foresttiles-1.png')
+plat_list = Level.platform(2)
 
 steps = 10  # how many pixels to move
 
@@ -193,19 +250,19 @@ while main == True:
         '''
         
         if event.type == KEYDOWN:       
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
+            if event.key == K_LEFT or event.key == ord('a'):
                 player.control(-steps,0)
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
+            if event.key == K_RIGHT or event.key == ord('d'):
                 player.control(steps,0)
-            if event.key == pygame.K_UP or event.key == ord('w'):
+            if event.key == K_UP or event.key == ord('w') or event.key == K_SPACE:
                 print('jump')
 
         if event.type == KEYUP:
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
+            if event.key == K_LEFT or event.key == ord('a'):
                 player.control(steps,0)
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
+            if event.key == K_RIGHT or event.key == ord('d'):
                 player.control(-steps,0)
-            if event.key == pygame.K_UP or event.key == ord('w'):
+            if event.key == K_UP or event.key == ord('w') or event.key == K_SPACE:
                 print('jump end')
 
             if event.key == ord('q'):
@@ -219,6 +276,8 @@ while main == True:
     player.update()
     player_list.draw(world) # draw player
     enemy_list.draw(world) # draw enemies
+    ground_list.draw(world)
+    plat_list.draw(world)
     for e in enemy_list:
         e.move(60, random.randint(2,6))
 
